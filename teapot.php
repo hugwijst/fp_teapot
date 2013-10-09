@@ -139,10 +139,10 @@ class Triangle
 
 class Point
 {
-    public $x = 0;
-    public $y = 0;
+    public float $x = 0.0;
+    public float $y = 0.0;
 
-    public function __construct($x, $y)
+    public function __construct(float $x, float $y)
     {
         $this->x = $x;
         $this->y = $y;
@@ -153,8 +153,8 @@ class Line
 {
 
     const float EPSILON = 0.0001;
-    public $a;
-    public $b;
+    public Point $a;
+    public Point $b;
 
     public function __construct(Point $a, Point $b)
     {
@@ -162,7 +162,7 @@ class Line
         $this->b = $b;
     }
 
-    private function linear_equation()
+    private function linear_equation() : array<float>
     {
         $divisor = ($this->b->x - $this->a->x);
         if ($divisor != 0) {
@@ -174,7 +174,7 @@ class Line
         return array($k, $d);
     }
 
-    public function is_online($r)
+    public function is_online($r) : bool
     {
         list($slope, $intercept) = $this->linear_equation();
 
@@ -189,7 +189,7 @@ class Line
         return (abs($error) < self::EPSILON);
     }
 
-    public function intersection_point($other)
+    public function intersection_point($other) : Point
     {
         list($this_slope, $this_intercept) = $this->linear_equation();
         list($other_slope, $other_intercept) = $other->linear_equation();
@@ -209,16 +209,19 @@ class Line
 }
 
 // Load the data file
-function load($file)
+function load(string $file) : array<Triangle>
 {
-    $get_triangles = function($acc, $line)
+    $get_triangles = function(array<Triangle> $acc, string $line) : array<Triangle>
     {
+        $matches = array();
+
         $pattern_points = '/"({.*,.*})","({.*,.*})","({.*,.*})"/';
         
         $matches = array();
         preg_match($pattern_points, $line, $matches);
 
-        $points = array_map(function ($x) {
+        $points = array_map(function ($x) : Point {
+            $matches = array();
             $pattern_point = '/{(.*),(.*)}/';
             $matches = array();
             preg_match($pattern_point, $x, $matches);
@@ -240,7 +243,7 @@ function load($file)
     return array_reduce(file($file), $get_triangles, array());
 }
 
-function split_triangles(Triangle $t)
+function split_triangles(Triangle $t) : array<Triangle>
 {
     if ($t->is_right() || $t->area() < 1) {
         return array($t);
@@ -249,7 +252,8 @@ function split_triangles(Triangle $t)
     return array_flatten(array_map(function ($trg) {return split_triangles($trg);}, $t->split_triangle()));
 }
 
-function array_flatten(array $arr) {
+// TODO: make generic
+function array_flatten(array $arr) : array {
     $arr = array_values($arr);
     while (list($k,$v)=each($arr)) {
         if (is_array($v)) {
@@ -260,20 +264,20 @@ function array_flatten(array $arr) {
     return $arr;
 }
 
-function print_err($str){
+function print_err(string $str) : void {
     $stderr = fopen('php://stderr', 'w');
     fwrite($stderr, $str);
     fclose($stderr);
 }
 
-function bench($op) {
+function bench($op) : int {
     $time_start = microtime(true);
     $op();
     $time_end = microtime(true);
     return $time_end - $time_start;
 }
 
-function main() {
+function main() : void {
     $file = "teapot.txt";
 
     $time_start = microtime(true);
