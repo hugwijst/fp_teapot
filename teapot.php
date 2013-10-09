@@ -1,4 +1,4 @@
-<?php
+<?hh // strict
 
 class Triangle
 {
@@ -152,7 +152,7 @@ class Point
 class Line
 {
 
-    CONST EPSILON = 0.0001;
+    const float EPSILON = 0.0001;
     public $a;
     public $b;
 
@@ -180,7 +180,7 @@ class Line
 
         if (is_infinite($slope)) {
             $error = $this->a->x - $r->x;
-        } elseif (is_infinite($intercept)) {
+        } else if (is_infinite($intercept)) {
             $error = $this->a->y - $r->y;
         } else {
             $error = $r->y - ($slope * $r->x + $intercept);
@@ -197,7 +197,7 @@ class Line
         if (is_infinite($this_slope)) {
             $x = $this->a->x;
             $y = $other_slope * $x + $other_intercept;
-        } elseif (is_infinite($other_slope)) {
+        } else if (is_infinite($other_slope)) {
             $x = $other->a->x;
             $y = $this_slope * $x + $this_intercept;
         } else {
@@ -225,8 +225,9 @@ function load($file)
             );
         }, array_slice($matches, 1));
 
-        if (sizeof($points) != 3)
+        if (sizeof($points) != 3) {
             return $acc;
+        }
 
         $trg = new Triangle($points);
         array_push($acc, $trg);
@@ -238,8 +239,9 @@ function load($file)
 
 function split_triangles(Triangle $t)
 {
-    if ($t->is_right() || $t->area() < 1)
+    if ($t->is_right() || $t->area() < 1) {
         return array($t);
+    } 
 
     return array_flatten(array_map(function ($trg) {return split_triangles($trg);}, $t->split_triangle()));
 }
@@ -268,22 +270,25 @@ function bench($op) {
     return $time_end - $time_start;
 }
 
-$file = "teapot.txt";
+function main() {
+    $file = "teapot.txt";
 
-$time_start = microtime(true);
-$triangles = load($file);
-$time = (microtime(true) - $time_start) * 1000;
-print_err("Loaded " . sizeof($triangles) . " triangles in " . $time . " ms\n");
+    $time_start = microtime(true);
+    $triangles = load($file);
+    $time = (microtime(true) - $time_start) * 1000;
+    print_err("Loaded " . sizeof($triangles) . " triangles in " . $time . " ms\n");
 
-$time_start = microtime(true);
-$right_triangles = array_flatten(array_map(function ($trg) {
-    return split_triangles($trg);
-}, $triangles));$time = microtime(true) - $time_start;
-$time = (microtime(true) - $time_start) * 1000;
-print_err("Generated " . sizeof($right_triangles) . " triangles in " . $time . " ms\n");
+    $time_start = microtime(true);
+    $right_triangles = array_flatten(array_map(function ($trg) {
+        return split_triangles($trg);
+    }, $triangles));$time = microtime(true) - $time_start;
+    $time = (microtime(true) - $time_start) * 1000;
+    print_err("Generated " . sizeof($right_triangles) . " triangles in " . $time . " ms\n");
 
-print("<svg xmlns='http://www.w3.org/2000/svg' version='1.1'>");
-    foreach($right_triangles as $triangle)
-        print($triangle->svg()."\n");
-print('</svg>');
+    print("<svg xmlns='http://www.w3.org/2000/svg' version='1.1'>");
+        foreach($right_triangles as $triangle) {
+            print($triangle->svg()."\n");
+        }
+    print('</svg>');
+}
 
