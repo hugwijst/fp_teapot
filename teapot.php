@@ -295,3 +295,5 @@ function main() {
     print('</svg>');
 }
 
+main();
+
