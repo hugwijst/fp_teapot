@@ -1,4 +1,4 @@
-<?hh // strict
+<?hh
 
 class Triangle
 {
@@ -74,7 +74,7 @@ class Triangle
         {
             if ($a->a->x > $b->a->x) {
                 return 1;
-            } elseif ($a->a->x < $b->a->x) {
+            } else if ($a->a->x < $b->a->x) {
                 return -1;
             } else {
                 return 0;
@@ -85,7 +85,7 @@ class Triangle
         {
             if ($a->a->y > $b->a->y) {
                 return 1;
-            } elseif ($a->a->y < $b->a->y) {
+            } else if ($a->a->y < $b->a->y) {
                 return -1;
             } else {
                 return 0;
@@ -214,10 +214,13 @@ function load($file)
     $get_triangles = function($acc, $line)
     {
         $pattern_points = '/"({.*,.*})","({.*,.*})","({.*,.*})"/';
+        
+        $matches = array();
         preg_match($pattern_points, $line, $matches);
 
         $points = array_map(function ($x) {
             $pattern_point = '/{(.*),(.*)}/';
+            $matches = array();
             preg_match($pattern_point, $x, $matches);
             return new Point(
                 ($matches[1] * 800) + 600,
