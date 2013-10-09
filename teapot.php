@@ -2,31 +2,31 @@
 
 class Triangle
 {
-    private $colors = array("yellowgreen", "tomato", "plum");
-    private $vertices;
+    private array $colors = array("yellowgreen", "tomato", "plum");
+    private array<Point> $vertices;
 
-    public function __construct(array $vertices)
+    public function __construct(array<Point> $vertices)
     {
         assert(sizeof($vertices) == 3);
         $this->vertices = $vertices;
     }
 
-    public function is_right()
+    public function is_right(): bool
     {
         return $this->has_horizontal_leg() && $this->has_vertical_leg();
     }
 
-    private function has_horizontal_leg()
+    private function has_horizontal_leg(): bool
     {
         return sizeof(array_unique(array_map(function ($x) { return round($x->y, 4);}, $this->vertices))) < 3;
     }
 
-    private function has_vertical_leg()
+    private function has_vertical_leg(): bool
     {
         return sizeof(array_unique(array_map(function ($x) { return round($x->x, 4);}, $this->vertices))) < 3;
     }
 
-    public function area()
+    public function area(): float
     {
         return abs(
             (($this->vertices[0]->x - $this->vertices[2]->x) * ($this->vertices[1]->y - $this->vertices[0]->y) -
@@ -34,41 +34,41 @@ class Triangle
         );
     }
 
-    private function max_x()
+    private function max_x(): float
     {
         return max(array_map(function ($x) { return $x->x; }, $this->vertices));
     }
 
-    private function max_y()
+    private function max_y(): float
     {
         return max(array_map(function ($x) { return $x->y; }, $this->vertices));
     }
 
-    private function min_x()
+    private function min_x(): float
     {
         return min(array_map(function ($x) {return $x->x; }, $this->vertices));
     }
 
-    private function min_y()
+    private function min_y(): float
     {
         return min(array_map(function ($x) { return $x->y; }, $this->vertices));
     }
 
-    private function vertical_cross_lines()
+    private function vertical_cross_lines(): array<Line>
     {
         return array_map(function ($x) {
             return new Line(new Point($x->x, $this->min_y()), new Point($x->x, $this->max_y()));
         }, $this->vertices);
     }
 
-    private function horizontal_cross_lines()
+    private function horizontal_cross_lines(): array<Line>
     {
         return array_map(function ($x) {
             return new Line(new Point($this->min_x(), $x->y), new Point($this->max_x(), $x->y));
         }, $this->vertices);
     }
 
-    private function select_crossline()
+    private function select_crossline(): Line
     {
         $comp1 = function($a, $b)
         {
@@ -102,7 +102,7 @@ class Triangle
         return $lines[1];
     }
 
-    public function split_triangle()
+    public function split_triangle(): (Triangle, Triangle)
     {
         $crossline = $this->select_crossline();
         assert(!is_null($crossline));
@@ -123,10 +123,10 @@ class Triangle
         $first =  new Triangle(array($split_vertex[0], $cross_point, $other_vertices[0]));
         $second = new Triangle(array($split_vertex[0], $cross_point, $other_vertices[1]));
 
-        return array($first, $second);
+        return tuple($first, $second);
     }
 
-    public function svg()
+    public function svg(): string
     {
         return sprintf("<polygon points='%f,%f %f,%f %f,%f' style='fill:%s;stroke:white'/>",
             $this->vertices[0]->x, $this->vertices[0]->y,
